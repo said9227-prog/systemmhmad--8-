@@ -14,6 +14,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     env:
       JAVA_TOOL_OPTIONS: "-Djava.awt.headless=true"
 
@@ -29,6 +30,17 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          api-level: 36
+          build-tools: 36.0.0
+          components: |
+            platform-tools
+            cmdline-tools;latest
+            platforms;android-36
+
+      - name: Accept Android SDK licenses
+        run: |
+          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses || true
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -37,6 +49,7 @@ jobs:
         run: |
           touch .env
           touch .env.example
+
           if [ -f "debug.keystore.base64" ] && [ ! -f "debug.keystore" ]; then
             base64 -d debug.keystore.base64 > debug.keystore 2>/dev/null || true
           fi
